@@ -102,16 +102,16 @@ func NewServer(config *Configuration) *Server {
     }
     mux := http.NewServeMux()
     return &Server{
-        &http.Server{
+        Server : &http.Server{
             Addr:           config.Address,
             Handler : mux,
             ReadTimeout:    time.Duration(config.ReadTimeout * int64(time.Second)),
             WriteTimeout:   time.Duration(config.WriteTimeout * int64(time.Second)),
             MaxHeaderBytes: 1 << 20,
         },
-        mux,
-        ds.NewDataStore(),
-        log.New(func() *os.File {
+        mux : mux,
+        dataStore : ds.NewDataStore(),
+        logger : log.New(func() *os.File {
             if config.File != "" {
                 file, err := CreateFile(config.File)
                 if err != nil {
@@ -121,9 +121,9 @@ func NewServer(config *Configuration) *Server {
             }
             return os.Stdout
         }(), "",0),
-        config.PollApi,
-        time.Duration(config.TimeWindow) * time.Second,
-        config.ResponseType,
+        pollApi : config.PollApi,
+        timeWindow : time.Duration(config.TimeWindow) * time.Second,
+        responseType : config.ResponseType,
     }
 
 }
