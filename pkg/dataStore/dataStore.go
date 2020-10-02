@@ -4,6 +4,7 @@ import(
 	"fmt"
 )
 
+//movingAverage stores the buffer of the accumulated values
 type movingAverage struct {
 	nums []float64
 	sum float64
@@ -16,6 +17,7 @@ func NewMovingAverage() *movingAverage {
 	}
 }
 
+//pops the oldest value from the list of nums
 func (this *movingAverage) pop() {
 	if len(this.nums) > 0 {
 		fmt.Printf("popping %v\n", this.nums[0])
@@ -25,11 +27,16 @@ func (this *movingAverage) pop() {
 	}
 }
 
-func (this *movingAverage) next(val float64) {
+//adds a new value to the list of nums
+func (this *movingAverage) next(val float64) float64 {
 	this.sum += val
 	this.nums = append(this.nums, val)
+	fmt.Println("sum: ",this.sum," numCount:", len(this.nums), " movingAverage: ", float64(this.sum) / float64(len(this.nums)))
+	return float64(this.sum) / float64(len(this.nums))
 }
 
+
+//concurrent version of movingAverage and is exported for use outside the package
 type DataStore struct {
 	sync.RWMutex
 	*movingAverage
@@ -43,6 +50,7 @@ func NewDataStore() *DataStore {
 	}
 }
 
+//locks the dataStore and adds new element to movingAverage
 func (this *DataStore) Add(e float64) {
 	this.Lock()
 	defer func() {
@@ -51,6 +59,7 @@ func (this *DataStore) Add(e float64) {
 	this.next(e)
 }
 
+//locks dataStore and pops oldest value
 func (this *DataStore) Pop() {
 	this.Lock()
 	defer func() {
@@ -59,12 +68,12 @@ func (this *DataStore) Pop() {
 	this.pop()
 }
 
+//readlock and gets running average
 func (this *DataStore) GetAverage() float64 {
 	this.RLock()
 	defer func() {
 		this.RUnlock()
 	}()
-	fmt.Println("sum: ",this.sum," numCount:", len(this.nums))
 	return float64(this.sum) / float64(len(this.nums))
 }
 

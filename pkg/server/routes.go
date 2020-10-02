@@ -7,6 +7,7 @@ import (
     utils "github.com/hashsequence/avgCableDiameterApi/pkg/utils"
   )
 
+//GetAverageHandler handles the /cable-diameter endpoint
 type GetAverageHandler struct {
     server *Server
 }
@@ -35,6 +36,7 @@ func (this *GetAverageHandler) ServeHTTP(w http.ResponseWriter, request *http.Re
 
 }
 
+//index endpoint, used for testing and prints memory usage to stdout
 func index(w http.ResponseWriter, request *http.Request) {
     fmt.Println("this is the index")
     utils.PrintMemUsage()

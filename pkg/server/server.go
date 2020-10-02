@@ -52,6 +52,7 @@ func LoadConfig(configFile string) *Configuration {
 	return &config
 }
 
+//create open file for read-write logging
 func CreateFile(name string) (*os.File, error) {
     file, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE, 0644)
     if err != nil {
@@ -64,15 +65,18 @@ func InitMsg(config *Configuration) {
 	fmt.Println("avgCableDiameter started at", ": " + config.Address)
 }
 
+//response to store polled api json response
 type PollResponse struct {
     Metric string
     Value float64 
 }
 
+// /cable-diameter GET Api Response if json
 type Response struct {
     Value float64
 }
 
+// custom server for avgCableDiameterApi
 type Server struct {
     *http.Server
     mux *http.ServeMux
@@ -83,6 +87,7 @@ type Server struct {
     responseType string
 }
 
+//instantiate custom Server from configuration or uses default values
 func NewServer(config *Configuration) *Server {
     if config == nil {
         config = &Configuration {
@@ -123,6 +128,7 @@ func NewServer(config *Configuration) *Server {
 
 }
 
+//method to perform Get Requests to poll Api
 func (this *Server) poll() {
     resp, err := http.Get(this.pollApi)
     if err == nil {
@@ -131,18 +137,21 @@ func (this *Server) poll() {
 	    if readErr == nil {
             bodyParsed := PollResponse{}
             json.Unmarshal(body,&bodyParsed)
-            this.dataStore.Add(bodyParsed.Value)
             this.logger.Printf("polledApi Value: %v\n",bodyParsed.Value)
+            this.dataStore.Add(bodyParsed.Value)
         }
     } 
 }
 
+//define routes for Api
 func (this *Server) Routes() {
     c := newGetAverageHandler(this)
     this.mux.HandleFunc("/", index)
     this.mux.Handle("/cable-diameter", this.recoveryMiddleWare(c))
 }
 
+
+//recovery middleware to handle panics from endpoints
 func (this *Server) recoveryMiddleWare(h http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         var err error
@@ -164,7 +173,7 @@ func (this *Server) recoveryMiddleWare(h http.Handler) http.Handler {
 	})
 }
 
-
+//instantiate web service. start polling api every second, and keeps a window of the one minute running average polled api values
 func (this *Server) ListenAndServe() {
     done := make(chan struct{})
     defer func() {
