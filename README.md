@@ -16,3 +16,15 @@ curl localhost:8080/cable-diameter
 ```
 
 Your moving average should be updated, if possible, once per second and, after each update, the new moving average is logged to STDOUT.
+
+## Design
+
+### Questions
+
+1. How should we run your solution?
+
+2. How long did you spend on the take home? What would you add to your solution if you had more time and expected it to be used in a production setting?
+
+3. If you used any libraries not in the language’s standard library, why did you use them?
+
+4. If you have any feedback, feel free to share your thoughts!

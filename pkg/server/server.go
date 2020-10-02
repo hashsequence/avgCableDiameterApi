@@ -13,17 +13,29 @@ import (
     ds "github.com/hashsequence/avgCableDiameterApi/pkg/dataStore"
   )
 
+  //Configuration stores all the variables to build a 
+  //custom server.
   type Configuration struct {
-	Address      string  
-	ReadTimeout  int64
+	Address string  
+	ReadTimeout int64
 	WriteTimeout int64
-	Static       string
+	Static string
 	PollApi string
-	File *os.File
-	TimeWindow time.Duration
+	File string
+	TimeWindow int
 }
 
-
+//Loads the configuration from a config.json
+//Sample Config.json:
+//{
+//    "Address"        : "0.0.0.0:8080",
+//    "ReadTimeout"    : 10,
+//    "WriteTimeout"   : 600,
+//    "Static"         : "public",
+//    "pollApi"        : "http://takehome-backend.oden.network/?metric=cable-diameter",
+//    "File"           : "log.txt",
+//    "TimeWindow"     : 60
+//}
 func LoadConfig(configFile string) *Configuration {
 	var config Configuration
 	file, err := os.Open(configFile)
@@ -32,11 +44,19 @@ func LoadConfig(configFile string) *Configuration {
 	}
 	decoder := json.NewDecoder(file)
 	config = Configuration{}
-	err = decoder.Decode(&config)
+    err = decoder.Decode(&config)
 	if err != nil {
 		log.Fatalln("Cannot get configuration from file", err)
 	}
 	return &config
+}
+
+func CreateFile(name string) (*os.File, error) {
+    file, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE, 0644)
+    if err != nil {
+        return nil, err
+    }
+    return file, err
 }
 
 func InitMsg(config *Configuration) {
@@ -69,8 +89,7 @@ func NewServer(config *Configuration) *Server {
 	        WriteTimeout : 600,
             Static : "public",
             PollApi : "http://takehome-backend.oden.network/?metric=cable-diameter",
-            File : os.Stdout,
-            TimeWindow : time.Minute,
+            TimeWindow : 60,
         }
     }
     mux := http.NewServeMux()
@@ -84,9 +103,18 @@ func NewServer(config *Configuration) *Server {
         },
         mux,
         ds.NewDataStore(),
-        log.New(config.File, "",0),
+        log.New(func() *os.File {
+            if config.File != "" {
+                file, err := CreateFile(config.File)
+                if err != nil {
+                    return os.Stdout
+                }
+                return file
+            }
+            return os.Stdout
+        }(), "",0),
         config.PollApi,
-        config.TimeWindow,
+        time.Duration(config.TimeWindow) * time.Second,
     }
 
 }
@@ -111,21 +139,6 @@ func (this *Server) Routes() {
     this.mux.Handle("/cable-diameter", this.recoveryMiddleWare(c))
 }
 
-func (this *Server) ListenAndServe() {
-    done := make(chan struct{})
-    defer func() {
-        close(done)
-    }()
-    this.Routes()
-    go utils.DoEvery(done, time.Second, this.poll)
-    go func() {
-        <-time.After(this.timeWindow)
-        utils.DoEvery(done, time.Second, this.dataStore.Pop)
-    }()
-    this.Server.ListenAndServe()
-    
-}
-
 func (this *Server) recoveryMiddleWare(h http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         var err error
@@ -145,4 +158,20 @@ func (this *Server) recoveryMiddleWare(h http.Handler) http.Handler {
         }()
         h.ServeHTTP(w, r)
 	})
+}
+
+
+func (this *Server) ListenAndServe() {
+    done := make(chan struct{})
+    defer func() {
+        close(done)
+    }()
+    this.Routes()
+    go utils.DoEvery(done, time.Second, this.poll)
+    go func() {
+        <-time.After(this.timeWindow)
+        utils.DoEvery(done, time.Second, this.dataStore.Pop)
+    }()
+    this.Server.ListenAndServe()
+    
 }

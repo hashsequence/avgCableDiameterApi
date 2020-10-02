@@ -5,6 +5,7 @@ import (
 )
 
 func main() {
-	s := server.NewServer(nil)
+	s := server.NewServer(server.LoadConfig("config.json"))
+	//s := server.NewServer(nil)
 	s.ListenAndServe()
 }
