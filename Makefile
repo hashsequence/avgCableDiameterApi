@@ -13,4 +13,8 @@ killServer:
 
 run:
 	make build 
+	./server 
+
+runBack:
+	make build
 	./server &

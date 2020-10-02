@@ -22,7 +22,8 @@ import (
 	Static string
 	PollApi string
 	File string
-	TimeWindow int
+    TimeWindow int
+    ResponseType string // options: "json" or "plain"
 }
 
 //Loads the configuration from a config.json
@@ -79,6 +80,7 @@ type Server struct {
     logger *log.Logger
     pollApi string
     timeWindow time.Duration
+    responseType string
 }
 
 func NewServer(config *Configuration) *Server {
@@ -90,6 +92,7 @@ func NewServer(config *Configuration) *Server {
             Static : "public",
             PollApi : "http://takehome-backend.oden.network/?metric=cable-diameter",
             TimeWindow : 60,
+            ResponseType : "json",
         }
     }
     mux := http.NewServeMux()
@@ -115,6 +118,7 @@ func NewServer(config *Configuration) *Server {
         }(), "",0),
         config.PollApi,
         time.Duration(config.TimeWindow) * time.Second,
+        config.ResponseType,
     }
 
 }
@@ -173,5 +177,4 @@ func (this *Server) ListenAndServe() {
         utils.DoEvery(done, time.Second, this.dataStore.Pop)
     }()
     this.Server.ListenAndServe()
-    
 }
