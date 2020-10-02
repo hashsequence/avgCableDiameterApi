@@ -177,4 +177,8 @@ func (this *Server) ListenAndServe() {
         utils.DoEvery(done, time.Second, this.dataStore.Pop)
     }()
     this.Server.ListenAndServe()
+    //sample use of tls with pre-generated self-signed certificates
+    //run curl -k <host>:<port> to call api if hosted locally
+    //this.Server.ListenAndServeTLS("ssl/server-cert.pem","ssl/server-key.pem")
+    
 }
