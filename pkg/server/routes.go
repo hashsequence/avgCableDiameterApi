@@ -16,7 +16,16 @@ func newGetAverageHandler(server *Server) *GetAverageHandler {
     return &GetAverageHandler{server}
 }
 
-func (this *GetAverageHandler) ServeHTTP(w http.ResponseWriter, request *http.Request) {
+func (this *GetAverageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+    if r.URL.Path != "/cable-diameter" {
+        http.Error(w, "404 not found.", http.StatusNotFound)
+        return
+    }
+
+    if r.Method != "GET" {
+        http.Error(w, "Method is not supported.", http.StatusNotFound)
+        return
+    }
 	currAverage := this.server.dataStore.GetAverage()
     this.server.logger.Printf("currentAverage: %v\n",currAverage)
     w.Header().Set("Access-Control-Allow-Origin", "*")
