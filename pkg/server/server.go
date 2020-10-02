@@ -1,6 +1,7 @@
 package server
 
 import (
+    "fmt"
 	"encoding/json"
 	"net/http"
     "errors"
@@ -12,13 +13,39 @@ import (
     ds "github.com/hashsequence/avgCableDiameterApi/pkg/dataStore"
   )
 
+  type Configuration struct {
+	Address      string  
+	ReadTimeout  int64
+	WriteTimeout int64
+	Static       string
+	PollApi string
+	File *os.File
+	TimeWindow time.Duration
+}
+
+
+func LoadConfig(configFile string) *Configuration {
+	var config Configuration
+	file, err := os.Open(configFile)
+	if err != nil {
+		log.Fatalln("Cannot open config file", err)
+	}
+	decoder := json.NewDecoder(file)
+	config = Configuration{}
+	err = decoder.Decode(&config)
+	if err != nil {
+		log.Fatalln("Cannot get configuration from file", err)
+	}
+	return &config
+}
+
+func InitMsg(config *Configuration) {
+	fmt.Println("avgCableDiameter started at", ": " + config.Address)
+}
+
 type PollResponse struct {
     Metric string
     Value float64 
-}
-
-func (this *PollResponse) GetValue() float64 {
-    return this.Value 
 }
 
 type Response struct {
@@ -34,9 +61,9 @@ type Server struct {
     timeWindow time.Duration
 }
 
-func NewServer(config *utils.Configuration) *Server {
+func NewServer(config *Configuration) *Server {
     if config == nil {
-        config = &utils.Configuration {
+        config = &Configuration {
             Address : "0.0.0.0:8000",
             ReadTimeout : 10,
 	        WriteTimeout : 600,
@@ -72,8 +99,8 @@ func (this *Server) poll() {
 	    if readErr == nil {
             bodyParsed := PollResponse{}
             json.Unmarshal(body,&bodyParsed)
-            this.dataStore.Add(bodyParsed.GetValue())
-            this.logger.Printf("polledApi Value: %v\n",bodyParsed.GetValue())
+            this.dataStore.Add(bodyParsed.Value)
+            this.logger.Printf("polledApi Value: %v\n",bodyParsed.Value)
         }
     } 
 }
