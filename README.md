@@ -26,11 +26,15 @@ the subset of the polled values in our one minute interval prior to the current 
 ### Scope
 
 * The specification did not specify authentication nor encryption requirements and is not part of the core challenge, though if implemented the certificates can be create and signed using openssl, I have taken the liberty to create the certificates for server side authentication and client side authentication,
-and a bash script is available in the ssl folder (genCerts.sh) to create said certificates, and we can use the following to enable tls if needed:
+and a bash script is available in the ssl folder (genCerts.sh) to create said certificates, and we can use the following to enable tls if needed: 
 
- https://golang.org/pkg/net/http/#Server.ListenAndServeTLS 
-"crypto/tls"
-"crypto/x509"
+
+    https://golang.org/pkg/net/http/#Server.ListenAndServeTLS 
+    
+    "crypto/tls"
+
+    "crypto/x509"
+    
 
 Though in my implementation the Api is an insecure public API using http
 
