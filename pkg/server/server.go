@@ -52,15 +52,6 @@ func LoadConfig(configFile string) *Configuration {
 	return &config
 }
 
-//create open file for read-write logging
-func CreateFile(name string) (*os.File, error) {
-    file, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE, 0644)
-    if err != nil {
-        return nil, err
-    }
-    return file, err
-}
-
 func InitMsg(config *Configuration) {
 	fmt.Println("avgCableDiameter started at", ": " + config.Address)
 }
@@ -113,7 +104,7 @@ func NewServer(config *Configuration) *Server {
         dataStore : ds.NewDataStore(),
         logger : log.New(func() *os.File {
             if config.File != "" {
-                file, err := CreateFile(config.File)
+                file, err := utils.CreateFile(config.File)
                 if err != nil {
                     return os.Stdout
                 }

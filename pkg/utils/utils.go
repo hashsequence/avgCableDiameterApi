@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"runtime"
 	"time"
+	"os"
 )
 
-
+//calls method f every d interval until done channel is closed or recieves a value
 func DoEvery(done <-chan struct{}, d time.Duration, f func()) {
 	ticker := time.NewTicker(d)	
 	for {
@@ -20,6 +21,16 @@ func DoEvery(done <-chan struct{}, d time.Duration, f func()) {
 	}
 
 }
+
+//create open file for read-write logging
+func CreateFile(name string) (*os.File, error) {
+    file, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE, 0644)
+    if err != nil {
+        return nil, err
+    }
+    return file, err
+}
+
 
 //prints memory usage for testing purposes
 func PrintMemUsage() {
