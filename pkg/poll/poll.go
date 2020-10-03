@@ -62,8 +62,7 @@ func (this* Poll) Stop() {
 //start polling api
 //polls the api and prints the new value to log 
 //and add value to dataStore's buffer and prints sum, numCount, and movingAverage to log (default to stdout)
-//after a designated time(default is one minute) has passed, will begin popping the oldest value every second,logging it
-//popping and adding new values every second will maintain the size of the window for the movingAverage
+//after a designated time(default is one minute) has passed, will begin popping the oldest value every second,logging the popped value to log
 func (this* Poll) Start() {
     go utils.DoEvery(this.done, time.Second, this.CallApi)
     go func() {
