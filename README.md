@@ -234,7 +234,7 @@ handle assertions for testing.
     └── server-req.pem
 
 ```
-### Creating And Running Docker Image
+### Creating and Running Docker Image
 
 in working directory run:
 ```
@@ -282,7 +282,7 @@ $ sudo docker container run --rm -p 8000:8080 avgcablediameterapi
 
 ```
 
-## testing
+## Testing
 Though testing was not part of the challenge, I took the liberty of making test cases with 
 Go standard testing libraries
 
