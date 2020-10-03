@@ -76,8 +76,6 @@ go version go1.15 linux/amd64
 
 1. How should we run your solution?
 
-
-
 A makefile is created in the working directory (\/avgCableDiameterApi)
 
 my working directory:
@@ -158,3 +156,175 @@ The design doc and solution took roughly 3 hours. Though, documenting and error 
 I did not use any libraries outside the standard library for golang, just to keep things simple
 
 4. If you have any feedback, feel free to share your thoughts!
+
+## Misc
+
+## Tree Of Project:
+
+```
+.
+├── cmd
+│   └── server
+│       └── main.go
+├── config.json
+├── Dockerfile
+├── go.mod
+├── go.sum
+├── Makefile
+├── Oden Software Engineer Takehome.pdf
+├── pkg
+│   ├── dataStore
+│   │   ├── dataStore.go
+│   │   └── dataStore_test.go
+│   ├── poll
+│   │   ├── poll.go
+│   │   └── poll_test.go
+│   ├── routes
+│   │   ├── routes.go
+│   │   └── routes_test.go
+│   └── utils
+│       └── utils.go
+├── README.md
+├── server
+└── ssl
+    ├── ca-cert.pem
+    ├── ca-cert.srl
+    ├── ca-key.pem
+    ├── client-cert.pem
+    ├── client-ext.cnf
+    ├── client-key.pem
+    ├── client-req.pem
+    ├── genCerts.sh
+    ├── server-cert.pem
+    ├── server-ext.cnf
+    ├── server-key.pem
+    └── server-req.pem
+
+```
+### Creating And Running Docker Image
+
+in working directory run:
+```
+$ sudo docker build -t avgcablediameterapi .
+[sudo] password for avwong13: 
+Sending build context to Docker daemon  33.09MB
+Step 1/7 : FROM golang
+ ---> 9f495162f677
+Step 2/7 : RUN mkdir ./avgCableDiameterApi
+ ---> Running in ed8960b534dd
+Removing intermediate container ed8960b534dd
+ ---> dc798d43ac25
+Step 3/7 : WORKDIR ./avgCableDiameterApi
+ ---> Running in 88ee49672ddc
+Removing intermediate container 88ee49672ddc
+ ---> 04110030aede
+Step 4/7 : COPY . .
+ ---> d437028b2329
+Step 5/7 : RUN make build
+ ---> Running in f117e53df5b5
+make clean 
+make[1]: Entering directory '/go/avgCableDiameterApi'
+rm -rf server 
+make[1]: Leaving directory '/go/avgCableDiameterApi'
+go build -o ./server ./cmd/server/ 
+Removing intermediate container f117e53df5b5
+ ---> b1a9b78bc2e5
+Step 6/7 : ENTRYPOINT ["./server"]
+ ---> Running in 9c0fe45e2dd6
+Removing intermediate container 9c0fe45e2dd6
+ ---> def5979402a3
+Step 7/7 : EXPOSE 8080
+ ---> Running in a354e3eebc0e
+Removing intermediate container a354e3eebc0e
+ ---> d7ba6755bc9e
+Successfully built d7ba6755bc9e
+Successfully tagged avgcablediameterapi:latest
+
+```
+
+run docker image exposing on host port 8000 from docker containers port 8080
+
+```
+$ sudo docker container run --rm -p 8000:8080 avgcablediameterapi
+
+```
+
+## testing
+Though testing was not part of the challenge, I took the liberty of making test cases with 
+Go standard testing libraries
+
+here is a sample run using main test:
+
+```
+$ make test
+go test -v ./...
+?   	github.com/hashsequence/avgCableDiameterApi/cmd/server	[no test files]
+=== RUN   TestNewDataStore
+sum:  324.626  numCount: 1  movingAverage:  324.626
+sum:  324949.252  numCount: 2  movingAverage:  162474.626
+sum:  329616.85199999996  numCount: 3  movingAverage:  109872.28399999999
+sum:  329617.31399999995  numCount: 4  movingAverage:  82404.32849999999
+sum:  350941.93999999994  numCount: 5  movingAverage:  70188.38799999999
+popping 324.626
+popping 324624.626
+popping 4667.6
+popping 0.462
+popping 21324.626
+--- PASS: TestNewDataStore (0.00s)
+PASS
+ok  	github.com/hashsequence/avgCableDiameterApi/pkg/dataStore	(cached)
+=== RUN   TestPoller
+polledApi Value: 8.606891976231747
+sum:  8.606891976231747  numCount: 1  movingAverage:  8.606891976231747
+polledApi Value: 8.30000178079741
+sum:  16.90689375702916  numCount: 2  movingAverage:  8.45344687851458
+polledApi Value: 9.202394541700805
+sum:  26.109288298729965  numCount: 3  movingAverage:  8.703096099576655
+polledApi Value: 10.653421271966947
+sum:  36.76270957069691  numCount: 4  movingAverage:  9.190677392674228
+polledApi Value: 11.622196723468107
+sum:  48.38490629416502  numCount: 5  movingAverage:  9.676981258833004
+polledApi Value: 13.089514203367397
+sum:  61.47442049753242  numCount: 6  movingAverage:  10.245736749588737
+polledApi Value: 12.577677435877836
+sum:  74.05209793341025  numCount: 7  movingAverage:  10.578871133344322
+polledApi Value: 10.251780080680044
+sum:  84.3038780140903  numCount: 8  movingAverage:  10.537984751761288
+polledApi Value: 11.717770338364097
+sum:  96.0216483524544  numCount: 9  movingAverage:  10.6690720391616
+--- PASS: TestPoller (16.00s)
+PASS
+ok  	github.com/hashsequence/avgCableDiameterApi/pkg/poll	(cached)
+=== RUN   TestCableDiameterRouteJsonResponse
+polledApi Value: 11.014617821958128
+sum:  11.014617821958128  numCount: 1  movingAverage:  11.014617821958128
+polledApi Value: 9.56807397672658
+sum:  20.582691798684706  numCount: 2  movingAverage:  10.291345899342353
+polledApi Value: 8.492795949688682
+sum:  29.07548774837339  numCount: 3  movingAverage:  9.691829249457797
+currentAverage: 9.691829249457797
+--- PASS: TestCableDiameterRouteJsonResponse (5.00s)
+=== RUN   TestCableDiameterRoutePLainResponse
+polledApi Value: 8.387346659929147
+sum:  37.46283440830254  numCount: 4  movingAverage:  9.365708602075635
+polledApi Value: 9.360237891446603
+sum:  46.82307229974914  numCount: 5  movingAverage:  9.364614459949829
+polledApi Value: 10.565137947341825
+sum:  57.38821024709097  numCount: 6  movingAverage:  9.564701707848494
+polledApi Value: 11.045150351770614
+sum:  11.045150351770614  numCount: 1  movingAverage:  11.045150351770614
+polledApi Value: 11.165611128426463
+sum:  68.55382137551743  numCount: 7  movingAverage:  9.793403053645347
+polledApi Value: 11.358646736541402
+sum:  22.403797088312018  numCount: 2  movingAverage:  11.201898544156009
+polledApi Value: 12.141072084142653
+sum:  80.69489345966008  numCount: 8  movingAverage:  10.08686168245751
+polledApi Value: 12.87168753334768
+sum:  35.2754846216597  numCount: 3  movingAverage:  11.758494873886567
+currentAverage: 11.758494873886567
+plaintext response:  11.758495 type:  float64
+--- PASS: TestCableDiameterRoutePLainResponse (5.00s)
+PASS
+ok  	github.com/hashsequence/avgCableDiameterApi/pkg/routes	10.006s
+?   	github.com/hashsequence/avgCableDiameterApi/pkg/utils	[no test files]
+```
