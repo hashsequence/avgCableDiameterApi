@@ -53,6 +53,7 @@ func (this *Poll) CallApi() {
 //closes the done channel to stop the polling api
 //Since I don't need to Stop the service as part of the challenge, this method
 //is only used for testing purposes
+//lock ensures Stop will be called only one at a time
 func (this* Poll) Stop() {
 	this.Lock()
 	defer func() {
@@ -71,6 +72,7 @@ func (this* Poll) Stop() {
 //polls the api and prints the new value to log 
 //and add value to dataStore's buffer and prints sum, numCount, and movingAverage to log (default to stdout)
 //after a designated time(default is one minute) has passed, will begin popping the oldest value every second,logging the popped value to log
+//lock ensures Start can only be called one at a time, and start won't run if done channel is already instantiated
 func (this* Poll) Start() {
 	this.Lock()
 	defer func() {
