@@ -190,6 +190,8 @@ handle assertions for testing.
 
 4. If you have any feedback, feel free to share your thoughts!
 
+Had a lot of fun working on this project! 
+
 ## Project Layout
 
 ```
