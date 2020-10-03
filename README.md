@@ -114,9 +114,7 @@ In Addition there is a config.json that can be used to switch the server's confi
 to call the API use curl in the terminal or use web browser
 ```
 $ curl http://0.0.0.0:8080/cable-diameter
-{ 
-  "Value": 10.768100226094273
-}
+{"Value":10.915435784411157}
 ```
 if the ResponseType is set to plain then we get:
 ```
