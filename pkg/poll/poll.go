@@ -59,11 +59,12 @@ func (this* Poll) Stop() {
 	defer func() {
 		this.Unlock()
 	}()
-	if this.done != nil {
-		close(this.done)
-		//nill out done channel so that it can be restarted again
-		this.done = nil
+	if this.done == nil {
+		return
 	}
+	close(this.done)
+	//nill out done channel so that it can be restarted again
+	this.done = nil
 	this.logger.Printf("Stopped Polling\n")
 }
 
