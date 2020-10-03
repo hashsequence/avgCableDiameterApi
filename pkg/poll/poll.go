@@ -6,11 +6,13 @@ import (
 	"encoding/json"
 	"net/http"
 	"io/ioutil"
+	"sync"
 	ds "github.com/hashsequence/avgCableDiameterApi/pkg/dataStore"
 	utils "github.com/hashsequence/avgCableDiameterApi/pkg/utils"
 )
 //response to store polled api json response
 type Poll struct {
+	sync.RWMutex
 	pollApi string
 	timeWindow time.Duration
 	done chan struct{}
@@ -28,9 +30,8 @@ func NewPoll(pollApi string, timeWindow time.Duration, dataStore *ds.DataStore, 
 	return &Poll {
 		pollApi : pollApi,
 		timeWindow : timeWindow,
-		done : make(chan struct{}),
 		dataStore : dataStore,
-		logger : logger,
+		logger : logger, 
 	}
 }
 //method to perform Get Requests to poll Api
@@ -50,20 +51,36 @@ func (this *Poll) CallApi() {
 }
 
 //closes the done channel to stop the polling api
-//however behavior is not consistent since there would be a race condition
-//on whether the polling will poll one or more times before channel is closed
 //Since I don't need to Stop the service as part of the challenge, this method
 //is only used for testing purposes
 func (this* Poll) Stop() {
-	close(this.done)
-	this.done = make(chan struct{})
+	this.Lock()
+	defer func() {
+		this.Unlock()
+	}()
+	if this.done != nil {
+		close(this.done)
+		//nill out done channel so that it can be restarted again
+		this.done = nil
+	}
+	this.logger.Printf("Stopped Polling\n")
 }
 
 //start polling api
+//instantiates the done channel, so that it may be closed
 //polls the api and prints the new value to log 
 //and add value to dataStore's buffer and prints sum, numCount, and movingAverage to log (default to stdout)
 //after a designated time(default is one minute) has passed, will begin popping the oldest value every second,logging the popped value to log
 func (this* Poll) Start() {
+	this.Lock()
+	defer func() {
+		this.Unlock()
+	}()
+	//cannot start if its already starting
+	if this.done != nil {
+		return
+	}
+	this.done = make(chan struct{})
     go utils.DoEvery(this.done, time.Second, this.CallApi)
     go func() {
         <-time.After(this.timeWindow)
@@ -73,5 +90,6 @@ func (this* Poll) Start() {
 				this.logger.Println("popped: ", val)
 			}
 		})
-    }()
+	}()
+	this.logger.Printf("Started Polling\n")
 }
