@@ -37,7 +37,7 @@ breakdown of responsibilities:
 * logger
     * maintains the logging of web service
 
-### Scope 
+### Scope and Contentious Issues
 
 * The specification did not specify authentication nor encryption requirements and is not part of the core challenge, though if implemented the certificates can be created and signed using openssl, I have taken the liberty to create the certificates for server side authentication and client side authentication,
 and a bash script is available in the ssl folder (genCerts.sh) to create said certificates (self-signed), the following resources would be useful in enabling tls for web service: 
@@ -57,8 +57,9 @@ perhaps the use of a third party in memory dataStore like redis would be more ef
 of the challenge I felt it was overkill and the use of a simple concurrent data struct is sufficient.
 
 * Another consideration we must account for is the consistent behavior of poller, since there will be variable latency times in getting the response 
-from the oden api, we would not be able to reliably call the oden api the same number of times per minute. In one one minute window, oden api may be called
-59 times and in the future in another one minute window, there might be 57 calls, which is the nature of real time feed.
+from the oden api, every time we restart the server we may end up with 59,58,or 60 values in the buffer for the first minute. After the minute, we 
+will start popping the oldest value every second. For Example, we have 59 values in the buffer after the first minute since starting. If in one interval of time it takes 5 seconds to poll a new value, then 5 old values will be popped, and so we end up with 55 in the buffer. I chose to have a separate goroutine 
+for polling new values and popping old values just so the two processes are independent and don't intefere with one another and to ensure that the buffer only contains values that are within the last one minute.
 
 * As for the format of response in the curl example, the value looks like plainText up to 2 significant figures. However, it was not specified what type of response the http web api will serve nor the response value has to be 2 significate figures, so I implemented a conigurable option to respond with a json or a plainText, and the format of value will be float64 to be consitent with the response of the oden Api
 
@@ -137,43 +138,45 @@ go build -o ./server ./cmd/server/
 make[1]: Leaving directory '/home/avwong13/avgCableDiameterApi'
 ./server 
 AvgCableDiameter Web Service started at : 0.0.0.0:8080
-polledApi Value: 8.376231127166509
-sum: 8.376231127166509 numCount: 1 movingAverage: 8.376231127166509
-polledApi Value: 8.488055504519052
-sum: 16.86428663168556 numCount: 2 movingAverage: 8.43214331584278
-GetAverageHandler called, currentAverage: 8.43214331584278
-polledApi Value: 10.615316838057362
-sum: 27.47960346974292 numCount: 3 movingAverage: 9.15986782324764
-GetAverageHandler called, currentAverage: 9.15986782324764
-polledApi Value: 11.425759746113258
-sum: 38.90536321585618 numCount: 4 movingAverage: 9.726340803964044
-GetAverageHandler called, currentAverage: 9.726340803964044
-GetAverageHandler called, currentAverage: 9.726340803964044
-polledApi Value: 12.509498159599376
-sum: 51.41486137545555 numCount: 5 movingAverage: 10.28297227509111
-GetAverageHandler called, currentAverage: 10.28297227509111
-GetAverageHandler called, currentAverage: 10.28297227509111
-GetAverageHandler called, currentAverage: 10.28297227509111
-polledApi Value: 13.09313496760025
-sum: 64.5079963430558 numCount: 6 movingAverage: 10.751332723842632
-GetAverageHandler called, currentAverage: 10.751332723842632
-polledApi Value: 11.80726216713283
-sum: 76.31525851018863 numCount: 7 movingAverage: 10.902179787169803
+polledApi Value: 12.976316132644891
+sum: 12.976316132644891 numCount: 1 movingAverage: 12.976316132644891
+polledApi Value: 13.09765038624688
+sum: 26.073966518891773 numCount: 2 movingAverage: 13.036983259445886
+polledApi Value: 12.451448141041464
+sum: 38.52541465993323 numCount: 3 movingAverage: 12.841804886644411
+polledApi Value: 11.507305131582514
+sum: 50.032719791515746 numCount: 4 movingAverage: 12.508179947878936
+polledApi Value: 9.046249575430384
+sum: 59.078969366946126 numCount: 5 movingAverage: 11.815793873389225
+polledApi Value: 8.51331886708611
+sum: 67.59228823403224 numCount: 6 movingAverage: 11.265381372338707
+polledApi Value: 8.790965032812514
+sum: 76.38325326684475 numCount: 7 movingAverage: 10.911893323834963
+polledApi Value: 10.286953565353977
+sum: 86.67020683219873 numCount: 8 movingAverage: 10.833775854024841
+polledApi Value: 11.473288019372903
+sum: 98.14349485157163 numCount: 9 movingAverage: 10.904832761285737
+polledApi Value: 12.534110013650851
+sum: 110.67760486522248 numCount: 10 movingAverage: 11.067760486522248
 ...
-popped:  8.376231127166509
-polledApi Value: 8.418817454073771
-sum: 621.5573905537676 numCount: 58 movingAverage: 10.716506733685648
-popped:  8.488055504519052
-polledApi Value: 9.169703862503304
-sum: 622.2390389117519 numCount: 58 movingAverage: 10.72825929158193
-polledApi Value: 9.957512537412518
-sum: 632.1965514491644 numCount: 59 movingAverage: 10.715195787273974
-popped:  10.615316838057362
-popped:  11.425759746113258
-polledApi Value: 11.774188529144254
-sum: 621.9296633941381 numCount: 58 movingAverage: 10.722925230933415
-polledApi Value: 12.350232350510954
-sum: 634.279895744649 numCount: 59 movingAverage: 10.750506707536424
+popped:  12.976316132644891
+polledApi Value: 13.07753015906396
+sum: 636.6589871983313 numCount: 59 movingAverage: 10.79083029149714
+polledApi Value: 13.036937594707014
+sum: 649.6959247930383 numCount: 60 movingAverage: 10.828265413217306
+popped:  13.09765038624688
+popped:  12.451448141041464
+polledApi Value: 11.548358014454482
+sum: 635.6951842802044 numCount: 59 movingAverage: 10.774494648817024
+popped:  11.507305131582514
+polledApi Value: 10.40057525450755
+sum: 634.5884544031295 numCount: 59 movingAverage: 10.75573651530728
+popped:  9.046249575430384
+polledApi Value: 8.833609016249282
+sum: 634.3758138439484 numCount: 59 movingAverage: 10.752132438033025
+popped:  8.51331886708611
+polledApi Value: 8.338822411480074
+sum: 634.2013173883424 numCount: 59 movingAverage: 10.749174870988854
 ...
 ```
 2. How long did you spend on the take home? What would you add to your solution if you had more time and expected it to be used in a production setting?
