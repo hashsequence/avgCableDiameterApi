@@ -72,7 +72,7 @@ func DoEvery(done <-chan struct{}, d time.Duration, f func()) {
 			ticker.Stop()
 			return
 		case <-ticker.C:
-			f()
+			go f()
 		}
 	}
 
