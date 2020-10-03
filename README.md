@@ -79,6 +79,7 @@ go version go1.15 linux/amd64
 
 1. How should we run your solution?
 
+#### Linux (Ubuntu 16.04)
 A makefile is created in the working directory (\/avgCableDiameterApi)
 
 my working directory:
@@ -179,6 +180,27 @@ polledApi Value: 8.338822411480074
 sum: 634.2013173883424 numCount: 59 movingAverage: 10.749174870988854
 ...
 ```
+
+#### Windows
+
+* Install the latest version of Go
+
+* Go to Command Prompt
+
+* Run following command in working directory:
+
+    ```
+    go build -o server.exe cmd/server/main.go
+    ```
+
+* Run server.exe
+
+    ```
+    server.exe
+    ```
+
+* go to web browser and goto localhost:8080/cable-diameter
+
 2. How long did you spend on the take home? What would you add to your solution if you had more time and expected it to be used in a production setting?
 
 The design doc and solution took roughly 3 hours. Though, documenting and error cases was done throughout the following day which add a couple of hours to the take home.
