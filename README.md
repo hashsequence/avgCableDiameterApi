@@ -60,8 +60,7 @@ of the challenge I felt it was overkill and the use of a simple concurrent data 
 from the oden api, we would not be able to reliably call the oden api the same number of times per minute. In one one minute window, oden api may be called
 59 times and in the future in another one minute window, there might be 57 calls, which is the nature of real time feed.
 
-* format of response, it was not specified what type of response the http web api will serve, so I implemented a conigurable option to respond
-with a json or a plainText, the value will be a float64
+* As for the format of response in the curl example, the value looks like plainText up to 2 significant figures. However, it was not specified what type of response the http web api will serve nor the response value has to be 2 significate figures, so I implemented a conigurable option to respond with a json or a plainText, and the format of value will be float64 to be consitent with the response of the oden Api
 
 ### local development environment
 
