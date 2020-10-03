@@ -35,7 +35,7 @@ import (
 func LoadConfig(configFile string) *Configuration {
 	if configFile == "" {
 		return &Configuration {
-            Address : "0.0.0.0:8080",
+            Address : "localhost:8080",
             ReadTimeout : 10,
 	        WriteTimeout : 600,
             Static : "public",

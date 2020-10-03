@@ -104,7 +104,7 @@ In Addition there is a config.json that can be used to switch the server's confi
 
 ```json
 {
-    "Address"        : "0.0.0.0:8080",
+    "Address"        : "localhost:8080",
     "ReadTimeout"    : 10,
     "WriteTimeout"   : 600,
     "Static"         : "public",
@@ -117,12 +117,12 @@ In Addition there is a config.json that can be used to switch the server's confi
 
 to call the API use curl in the terminal or use web browser
 ```
-$ curl http://0.0.0.0:8080/cable-diameter
+$ curl http://localhost:8080/cable-diameter
 {"Value":10.915435784411157}
 ```
 if the ResponseType is set to plain then we get:
 ```
-$ curl http://0.0.0.0:8080/cable-diameter
+$ curl http://localhost:8080/cable-diameter
 10.772065570961349
 ```
 
@@ -138,7 +138,7 @@ make[2]: Leaving directory '/home/avwong13/avgCableDiameterApi'
 go build -o ./server ./cmd/server/ 
 make[1]: Leaving directory '/home/avwong13/avgCableDiameterApi'
 ./server 
-AvgCableDiameter Web Service started at : 0.0.0.0:8080
+AvgCableDiameter Web Service started at : localhost:8080
 polledApi Value: 12.976316132644891
 sum: 12.976316132644891 numCount: 1 movingAverage: 12.976316132644891
 polledApi Value: 13.09765038624688
