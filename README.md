@@ -308,78 +308,80 @@ $ sudo docker container run --rm -p 8000:8080 avgcablediameterapi
 Though testing was not part of the challenge, I took the liberty of making test cases with 
 Go standard testing libraries
 
-here is a sample run using main test:
+here is a sample run using make test:
 
 ```
 $ make test
 go test -v ./...
+?   	github.com/hashsequence/avgCableDiameterApi/cmd/playground	[no test files]
 ?   	github.com/hashsequence/avgCableDiameterApi/cmd/server	[no test files]
 === RUN   TestNewDataStore
-sum:  324.626  numCount: 1  movingAverage:  324.626
-sum:  324949.252  numCount: 2  movingAverage:  162474.626
-sum:  329616.85199999996  numCount: 3  movingAverage:  109872.28399999999
-sum:  329617.31399999995  numCount: 4  movingAverage:  82404.32849999999
-sum:  350941.93999999994  numCount: 5  movingAverage:  70188.38799999999
-popping 324.626
-popping 324624.626
-popping 4667.6
-popping 0.462
-popping 21324.626
 --- PASS: TestNewDataStore (0.00s)
 PASS
 ok  	github.com/hashsequence/avgCableDiameterApi/pkg/dataStore	(cached)
 === RUN   TestPoller
-polledApi Value: 8.606891976231747
-sum:  8.606891976231747  numCount: 1  movingAverage:  8.606891976231747
-polledApi Value: 8.30000178079741
-sum:  16.90689375702916  numCount: 2  movingAverage:  8.45344687851458
-polledApi Value: 9.202394541700805
-sum:  26.109288298729965  numCount: 3  movingAverage:  8.703096099576655
-polledApi Value: 10.653421271966947
-sum:  36.76270957069691  numCount: 4  movingAverage:  9.190677392674228
-polledApi Value: 11.622196723468107
-sum:  48.38490629416502  numCount: 5  movingAverage:  9.676981258833004
-polledApi Value: 13.089514203367397
-sum:  61.47442049753242  numCount: 6  movingAverage:  10.245736749588737
-polledApi Value: 12.577677435877836
-sum:  74.05209793341025  numCount: 7  movingAverage:  10.578871133344322
-polledApi Value: 10.251780080680044
-sum:  84.3038780140903  numCount: 8  movingAverage:  10.537984751761288
-polledApi Value: 11.717770338364097
-sum:  96.0216483524544  numCount: 9  movingAverage:  10.6690720391616
---- PASS: TestPoller (16.00s)
+Started Polling
+polledApi Value: 10.647130484191077
+sum: 10.647130484191077 numCount: 1 movingAverage: 10.647130484191077
+polledApi Value: 8.925005500538543
+sum: 19.57213598472962 numCount: 2 movingAverage: 9.78606799236481
+polledApi Value: 8.895486962163256
+sum: 28.467622946892874 numCount: 3 movingAverage: 9.48920764896429
+polledApi Value: 8.581333896607628
+sum: 37.048956843500505 numCount: 4 movingAverage: 9.262239210875126
+polledApi Value: 8.656554370085571
+sum: 45.70551121358608 numCount: 5 movingAverage: 9.141102242717215
+polledApi Value: 11.129761498121448
+sum: 56.835272711707525 numCount: 6 movingAverage: 9.472545451951254
+polledApi Value: 11.25832737427363
+sum: 68.09360008598115 numCount: 7 movingAverage: 9.727657155140164
+Stopped Polling
+polledApi Value: 12.381975941725331
+sum: 80.47557602770648 numCount: 8 movingAverage: 10.05944700346331
+Started Polling
+polledApi Value: 13.014800743915409
+sum: 93.4903767716219 numCount: 9 movingAverage: 10.387819641291323
+polledApi Value: 12.246175659079757
+sum: 105.73655243070165 numCount: 10 movingAverage: 10.573655243070165
+polledApi Value: 11.632189264985092
+sum: 117.36874169568674 numCount: 11 movingAverage: 10.669885608698793
+polledApi Value: 9.332376998623191
+sum: 126.70111869430993 numCount: 12 movingAverage: 10.55842655785916
+--- PASS: TestPoller (23.00s)
 PASS
 ok  	github.com/hashsequence/avgCableDiameterApi/pkg/poll	(cached)
 === RUN   TestCableDiameterRouteJsonResponse
-polledApi Value: 11.014617821958128
-sum:  11.014617821958128  numCount: 1  movingAverage:  11.014617821958128
-polledApi Value: 9.56807397672658
-sum:  20.582691798684706  numCount: 2  movingAverage:  10.291345899342353
-polledApi Value: 8.492795949688682
-sum:  29.07548774837339  numCount: 3  movingAverage:  9.691829249457797
-currentAverage: 9.691829249457797
+Started Polling
+polledApi Value: 9.411733381039618
+sum: 9.411733381039618 numCount: 1 movingAverage: 9.411733381039618
+polledApi Value: 9.075350390523251
+sum: 18.48708377156287 numCount: 2 movingAverage: 9.243541885781434
+polledApi Value: 8.393386762666402
+sum: 26.88047053422927 numCount: 3 movingAverage: 8.960156844743091
+polledApi Value: 9.0466296583329
+sum: 35.92710019256217 numCount: 4 movingAverage: 8.981775048140543
+GetAverageHandler called, currentAverage: 8.981775048140543
 --- PASS: TestCableDiameterRouteJsonResponse (5.00s)
 === RUN   TestCableDiameterRoutePLainResponse
-polledApi Value: 8.387346659929147
-sum:  37.46283440830254  numCount: 4  movingAverage:  9.365708602075635
-polledApi Value: 9.360237891446603
-sum:  46.82307229974914  numCount: 5  movingAverage:  9.364614459949829
-polledApi Value: 10.565137947341825
-sum:  57.38821024709097  numCount: 6  movingAverage:  9.564701707848494
-polledApi Value: 11.045150351770614
-sum:  11.045150351770614  numCount: 1  movingAverage:  11.045150351770614
-polledApi Value: 11.165611128426463
-sum:  68.55382137551743  numCount: 7  movingAverage:  9.793403053645347
-polledApi Value: 11.358646736541402
-sum:  22.403797088312018  numCount: 2  movingAverage:  11.201898544156009
-polledApi Value: 12.141072084142653
-sum:  80.69489345966008  numCount: 8  movingAverage:  10.08686168245751
-polledApi Value: 12.87168753334768
-sum:  35.2754846216597  numCount: 3  movingAverage:  11.758494873886567
-currentAverage: 11.758494873886567
-plaintext response:  11.758495 type:  float64
+Started Polling
+polledApi Value: 10.28683738836894
+sum: 46.213937580931116 numCount: 5 movingAverage: 9.242787516186223
+polledApi Value: 11.57077852140436
+sum: 11.57077852140436 numCount: 1 movingAverage: 11.57077852140436
+polledApi Value: 12.253908337776421
+sum: 58.46784591870754 numCount: 6 movingAverage: 9.744640986451257
+polledApi Value: 12.3867957400489
+sum: 70.85464165875644 numCount: 7 movingAverage: 10.122091665536633
+polledApi Value: 13.097104382180925
+sum: 83.95174604093737 numCount: 8 movingAverage: 10.49396825511717
+polledApi Value: 13.089805743690412
+sum: 24.660584265094773 numCount: 2 movingAverage: 12.330292132547386
+polledApi Value: 13.06009881468157
+sum: 37.72068307977634 numCount: 3 movingAverage: 12.573561026592115
+GetAverageHandler called, currentAverage: 12.573561026592115
+plaintext response:  12.573561026592115 type:  float64
 --- PASS: TestCableDiameterRoutePLainResponse (5.00s)
 PASS
-ok  	github.com/hashsequence/avgCableDiameterApi/pkg/routes	10.006s
+ok  	github.com/hashsequence/avgCableDiameterApi/pkg/routes	(cached)
 ?   	github.com/hashsequence/avgCableDiameterApi/pkg/utils	[no test files]
 ```
