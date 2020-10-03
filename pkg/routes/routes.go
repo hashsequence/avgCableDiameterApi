@@ -39,11 +39,13 @@ type GetAverageHandlerResponse struct {
 func (this *GetAverageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     //basic validate of request
     if r.URL.Path != "/cable-diameter" {
+        this.logger.Println("404 not found.")
         http.Error(w, "404 not found.", http.StatusNotFound)
         return
     }
 
     if r.Method != "GET" {
+        this.logger.Println("Method is not supported.")
         http.Error(w, "Method is not supported.", http.StatusNotFound)
         return
     }
@@ -57,6 +59,8 @@ func (this *GetAverageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
         resp, err := json.MarshalIndent(GetAverageHandlerResponse{currAverage}, "", "  ")
         if err != nil {
             this.logger.Println("Error Marshalling response")
+            http.Error(w, "Error Marshalling response", http.StatusExpectationFailed)
+            return
 	    }
         w.Header().Set("Content-Type", "application/json; charset=UTF-8")
         w.Write(resp)
