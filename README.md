@@ -6,7 +6,7 @@ At Oden we deal with a lot of time-series data. We process millions of IoT metri
 
 http://takehome-backend.oden.network/?metric=cable-diameter
 
-The API returns the current value for the metric. Your task is to assemble an application that polls the Oden API, calculates a one minute moving average of the Cable Diameter, and exposes that moving average via an HTTP service when issued a GET request to localhost:8080/cable-diameter.
+The API returns the current value for the metric. Your task is to assemble an application that polls the Oden API, calculates a one minute moving average of the Cable Diameter, and* exposes that moving average via an HTTP service when issued a GET request to localhost:8080/cable-diameter.
 
 Example:
 
@@ -20,10 +20,24 @@ Your moving average should be updated, if possible, once per second and, after e
 ## Design
 
 * From my interpretation of the prompt, it seems that the Api must calculate the one minute moving average of the Cable Diameter, meaning we must calculate 
-the average of all the cableApi values retrieve from the poll api. By utilizing goroutines, I can have a process polling the poll api every second, and after 60 seconds has passed since starting the server, we can start popping off the oldest values every second, thus in our dataStore we will always maintain
+the average of all the cableApi values retrieve from the poll api. By utilizing goroutines, I can have a process polling the poll api every second, and after 60 seconds has passed since polling, we can start popping off the oldest values every second, thus in our dataStore we will always maintain
 the subset of the polled values in our one minute interval prior to the current time in real-time.
 
-### Scope
+breakdown of responsibilities: 
+
+* poller
+    * Responsible for polling the oden's Api
+
+* dataStore 
+    * data structure to store moving average value and related data
+
+* Routes
+    * defines Handlers to handle endpoints
+
+* logger
+    * maintains the logging of web service
+
+### Scope 
 
 * The specification did not specify authentication nor encryption requirements and is not part of the core challenge, though if implemented the certificates can be create and signed using openssl, I have taken the liberty to create the certificates for server side authentication and client side authentication,
 and a bash script is available in the ssl folder (genCerts.sh) to create said certificates, and we can use the following to enable tls if needed: 
@@ -34,7 +48,7 @@ and a bash script is available in the ssl folder (genCerts.sh) to create said ce
     "crypto/tls"
 
     "crypto/x509"
-    
+
 
 Though in my implementation the Api is an insecure public API using http
 
@@ -42,11 +56,27 @@ Though in my implementation the Api is an insecure public API using http
 perhaps the use of a third party in memory dataStore like redis would be more effective if attempting to scale the api, but in the context
 of the challenge I felt it was overkill and the use of a simple concurrent data struct is sufficient.
 
+* Another consideration we must account for is the consistent behavior of poller, since there will be variable latency times in getting the response 
+from the oden api, we would not be able to reliably call the oden api the same number of times per minute. In one one minute window, oden api may be called
+59 times and in the future in another one minute window, there might be 57 calls, which is the nature of real time feed.
+
+### local development environment
+
+* Ubuntu 16.04
+
+* golang
+    * current version:
+```
+$ go version
+go version go1.15 linux/amd64
+```
 
 
 ### Questions
 
 1. How should we run your solution?
+
+
 
 A makefile is created in the working directory (\/avgCableDiameterApi)
 
@@ -96,6 +126,29 @@ $ curl http://0.0.0.0:8080/cable-diameter
 10.592566
 ```
 
+sample run of server locally
+```
+$ make run
+make build 
+make[1]: Entering directory '/home/avwong13/avgCableDiameterApi'
+make clean 
+make[2]: Entering directory '/home/avwong13/avgCableDiameterApi'
+rm -rf server 
+make[2]: Leaving directory '/home/avwong13/avgCableDiameterApi'
+go build -o ./server ./cmd/server/ 
+make[1]: Leaving directory '/home/avwong13/avgCableDiameterApi'
+./server 
+AvgCableDiameter Web Service started at : 0.0.0.0:8080
+polledApi Value: 8.337609383825345
+sum:  8.337609383825345  numCount: 1  movingAverage:  8.337609383825345
+polledApi Value: 8.735794584816379
+sum:  17.073403968641724  numCount: 2  movingAverage:  8.536701984320862
+polledApi Value: 10.419738121229939
+sum:  27.49314208987166  numCount: 3  movingAverage:  9.164380696623887
+polledApi Value: 11.220133863656503
+sum:  38.71327595352817  numCount: 4  movingAverage:  9.678318988382042
+
+```
 2. How long did you spend on the take home? What would you add to your solution if you had more time and expected it to be used in a production setting?
 
 The design doc and solution took roughly 3 hours. Though, documenting and error cases was done throughout the following day which add a couple of hours to the take home.
