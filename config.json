@@ -6,5 +6,5 @@
     "pollApi"        : "http://takehome-backend.oden.network/?metric=cable-diameter",
     "File"           : "",
     "TimeWindow"     : 60,
-    "ResponseType"   : "plain"
+    "ResponseType"   : "json"
 }

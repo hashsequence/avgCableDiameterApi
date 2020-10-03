@@ -49,7 +49,7 @@ func (this *GetAverageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
     }
     //get current average from datastore 
 	currAverage := this.dataStore.GetAverage()
-    this.logger.Printf("currentAverage: %v\n",currAverage)
+    this.logger.Printf("GetAverageHandler called, currentAverage: %v\n",currAverage)
     w.Header().Set("Access-Control-Allow-Origin", "*")
     w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
     //depending on response type configuration, response will be plain text or json

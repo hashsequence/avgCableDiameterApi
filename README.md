@@ -137,15 +137,44 @@ go build -o ./server ./cmd/server/
 make[1]: Leaving directory '/home/avwong13/avgCableDiameterApi'
 ./server 
 AvgCableDiameter Web Service started at : 0.0.0.0:8080
-polledApi Value: 8.337609383825345
-sum:  8.337609383825345  numCount: 1  movingAverage:  8.337609383825345
-polledApi Value: 8.735794584816379
-sum:  17.073403968641724  numCount: 2  movingAverage:  8.536701984320862
-polledApi Value: 10.419738121229939
-sum:  27.49314208987166  numCount: 3  movingAverage:  9.164380696623887
-polledApi Value: 11.220133863656503
-sum:  38.71327595352817  numCount: 4  movingAverage:  9.678318988382042
-
+polledApi Value: 8.376231127166509
+sum: 8.376231127166509 numCount: 1 movingAverage: 8.376231127166509
+polledApi Value: 8.488055504519052
+sum: 16.86428663168556 numCount: 2 movingAverage: 8.43214331584278
+GetAverageHandler called, currentAverage: 8.43214331584278
+polledApi Value: 10.615316838057362
+sum: 27.47960346974292 numCount: 3 movingAverage: 9.15986782324764
+GetAverageHandler called, currentAverage: 9.15986782324764
+polledApi Value: 11.425759746113258
+sum: 38.90536321585618 numCount: 4 movingAverage: 9.726340803964044
+GetAverageHandler called, currentAverage: 9.726340803964044
+GetAverageHandler called, currentAverage: 9.726340803964044
+polledApi Value: 12.509498159599376
+sum: 51.41486137545555 numCount: 5 movingAverage: 10.28297227509111
+GetAverageHandler called, currentAverage: 10.28297227509111
+GetAverageHandler called, currentAverage: 10.28297227509111
+GetAverageHandler called, currentAverage: 10.28297227509111
+polledApi Value: 13.09313496760025
+sum: 64.5079963430558 numCount: 6 movingAverage: 10.751332723842632
+GetAverageHandler called, currentAverage: 10.751332723842632
+polledApi Value: 11.80726216713283
+sum: 76.31525851018863 numCount: 7 movingAverage: 10.902179787169803
+...
+popped:  8.376231127166509
+polledApi Value: 8.418817454073771
+sum: 621.5573905537676 numCount: 58 movingAverage: 10.716506733685648
+popped:  8.488055504519052
+polledApi Value: 9.169703862503304
+sum: 622.2390389117519 numCount: 58 movingAverage: 10.72825929158193
+polledApi Value: 9.957512537412518
+sum: 632.1965514491644 numCount: 59 movingAverage: 10.715195787273974
+popped:  10.615316838057362
+popped:  11.425759746113258
+polledApi Value: 11.774188529144254
+sum: 621.9296633941381 numCount: 58 movingAverage: 10.722925230933415
+polledApi Value: 12.350232350510954
+sum: 634.279895744649 numCount: 59 movingAverage: 10.750506707536424
+...
 ```
 2. How long did you spend on the take home? What would you add to your solution if you had more time and expected it to be used in a production setting?
 

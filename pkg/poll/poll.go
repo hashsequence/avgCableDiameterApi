@@ -42,8 +42,9 @@ func (this *Poll) CallApi() {
 	    if readErr == nil {
             bodyParsed := PollResponse{}
             json.Unmarshal(body,&bodyParsed)
-            this.logger.Printf("polledApi Value: %v\n",bodyParsed.Value)
-            this.dataStore.Add(bodyParsed.Value)
+			this.dataStore.Add(bodyParsed.Value)
+			sum, numCount, movingAverage := this.dataStore.GetAllValues()
+			this.logger.Printf("polledApi Value: %v\nsum: %v numCount: %v movingAverage: %v\n",bodyParsed.Value, sum, numCount, movingAverage)
         }
     } 
 }
@@ -58,10 +59,20 @@ func (this* Poll) Stop() {
 	this.done = make(chan struct{})
 }
 
+//start polling api
+//polls the api and prints the new value to log 
+//and add value to dataStore's buffer and prints sum, numCount, and movingAverage to log (default to stdout)
+//after a designated time(default is one minute) has passed, will begin popping the oldest value every second,logging it
+//popping and adding new values every second will maintain the size of the window for the movingAverage
 func (this* Poll) Start() {
     go utils.DoEvery(this.done, time.Second, this.CallApi)
     go func() {
         <-time.After(this.timeWindow)
-        utils.DoEvery(this.done, time.Second, this.dataStore.Pop)
+        utils.DoEvery(this.done, time.Second, func() {
+			val, ok := this.dataStore.Pop()
+			if ok {
+				this.logger.Println("popped: ", val)
+			}
+		})
     }()
 }

@@ -41,7 +41,7 @@ func LoadConfig(configFile string) *Configuration {
             Static : "public",
             PollApi : "http://takehome-backend.oden.network/?metric=cable-diameter",
             TimeWindow : 60,
-            ResponseType : "json",
+            ResponseType : "plain",
         }
 	}
 	var config Configuration
