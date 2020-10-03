@@ -20,7 +20,7 @@ func main() {
 	//instantiate handler for "/cable-diameter" route
 	avgCableDiameterApiHandler := routes.NewGetAverageHandler(dataStore, logger, config.ResponseType)
 	//instantiate poller
-	poller := poll.NewPoll(config.PollApi, time.Duration(config.TimeWindow) * time.Second, dataStore, logger)
+	poller := poll.NewPoll(config.PollApi, config.TimeWindow, dataStore, logger)
 	//since I only have one route "/cable-diameter" I don't need a router
 	//however if I were to add more routes I woul replace the Handler with a *http.ServeMux to handle multiple routes
 	//there are also popular router libraries like gorilla/mux and go-chi, but the simplicity of this challenge does not

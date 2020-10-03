@@ -26,10 +26,10 @@ type PollResponse struct {
     Value float64 
 }
 
-func NewPoll(pollApi string, timeWindow time.Duration, dataStore *ds.DataStore, logger *log.Logger) *Poll {
+func NewPoll(pollApi string, timeWindow int, dataStore *ds.DataStore, logger *log.Logger) *Poll {
 	return &Poll {
 		pollApi : pollApi,
-		timeWindow : timeWindow,
+		timeWindow :  time.Duration(timeWindow) * time.Second,
 		dataStore : dataStore,
 		logger : logger, 
 	}

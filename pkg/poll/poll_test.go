@@ -11,7 +11,7 @@ import (
 func TestPoller(t *testing.T) {
 	dataStore := ds.NewDataStore()
 	logger := utils.CreateLogger("")
-	poller := NewPoll("http://takehome-backend.oden.network/?metric=cable-diameter", time.Duration(60) * time.Second, dataStore, logger)
+	poller := NewPoll("http://takehome-backend.oden.network/?metric=cable-diameter", 60, dataStore, logger)
 
 	poller.Start()
 	time.Sleep(5 * time.Second)

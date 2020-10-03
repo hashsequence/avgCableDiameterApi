@@ -23,7 +23,7 @@ func TestCableDiameterRouteJsonResponse(t *testing.T){
 	dataStore := ds.NewDataStore()
 	logger := utils.CreateLogger("")
 	avgCableDiameterApiHandler := NewGetAverageHandler(dataStore, logger, "json")
-	poller := poll.NewPoll("http://takehome-backend.oden.network/?metric=cable-diameter", time.Duration(60) * time.Second, dataStore, logger)
+	poller := poll.NewPoll("http://takehome-backend.oden.network/?metric=cable-diameter", 60, dataStore, logger)
 
 	ts := httptest.NewServer(avgCableDiameterApiHandler)
     defer ts.Close()
@@ -61,7 +61,7 @@ func TestCableDiameterRoutePLainResponse(t *testing.T){
 	dataStore := ds.NewDataStore()
 	logger := utils.CreateLogger("")
 	avgCableDiameterApiHandler := NewGetAverageHandler(dataStore, logger, "plain")
-	poller := poll.NewPoll("http://takehome-backend.oden.network/?metric=cable-diameter", time.Duration(60) * time.Second, dataStore, logger)
+	poller := poll.NewPoll("http://takehome-backend.oden.network/?metric=cable-diameter", 50, dataStore, logger)
 
 	ts := httptest.NewServer(avgCableDiameterApiHandler)
     defer ts.Close()
