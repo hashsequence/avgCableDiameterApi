@@ -19,7 +19,7 @@ import (
 
 //test cable-diameter api if json response
 func TestCableDiameterRouteJsonResponse(t *testing.T){
-	
+	//instantiate server
 	dataStore := ds.NewDataStore()
 	logger := utils.CreateLogger("")
 	avgCableDiameterApiHandler := NewGetAverageHandler(dataStore, logger, "json")
@@ -37,6 +37,7 @@ func TestCableDiameterRouteJsonResponse(t *testing.T){
 	}
 	
 	rr := httptest.NewRecorder()
+	//server request
 	avgCableDiameterApiHandler.ServeHTTP(rr, req)
 
 	 // Check the status code is what we expect.
@@ -56,7 +57,7 @@ func TestCableDiameterRouteJsonResponse(t *testing.T){
 
 //test cable-diameter api if response was plain-text
 func TestCableDiameterRoutePLainResponse(t *testing.T){
-	
+	//instantiate server
 	dataStore := ds.NewDataStore()
 	logger := utils.CreateLogger("")
 	avgCableDiameterApiHandler := NewGetAverageHandler(dataStore, logger, "plain")
@@ -74,6 +75,7 @@ func TestCableDiameterRoutePLainResponse(t *testing.T){
 	}
 	
 	rr := httptest.NewRecorder()
+	//server request
 	avgCableDiameterApiHandler.ServeHTTP(rr, req)
 
 	 // Check the status code is what we expect.

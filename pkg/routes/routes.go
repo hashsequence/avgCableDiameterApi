@@ -37,6 +37,7 @@ type GetAverageHandlerResponse struct {
 }
 
 func (this *GetAverageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+    //basic validate of request
     if r.URL.Path != "/cable-diameter" {
         http.Error(w, "404 not found.", http.StatusNotFound)
         return
@@ -46,10 +47,12 @@ func (this *GetAverageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
         http.Error(w, "Method is not supported.", http.StatusNotFound)
         return
     }
+    //get current average from datastore 
 	currAverage := this.dataStore.GetAverage()
     this.logger.Printf("currentAverage: %v\n",currAverage)
     w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+    w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+    //depending on response type configuration, response will be plain text or json
     if this.responseType == "json" {
         resp, err := json.MarshalIndent(GetAverageHandlerResponse{currAverage}, "", "  ")
         if err != nil {
@@ -76,6 +79,7 @@ func (this *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     utils.PrintMemUsage()
   }
 
+  //Basic Recovery Middleware wrapper to handle panics from handler
 func RecoveryMiddleWare(h http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         var err error

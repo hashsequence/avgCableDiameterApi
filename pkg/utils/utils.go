@@ -78,6 +78,8 @@ func DoEvery(done <-chan struct{}, d time.Duration, f func()) {
 
 }
 
+//creates logger
+//if file is empty string then creates logger to stdout
 func CreateLogger(file string) *log.Logger {
 	return log.New(func() *os.File {
 		if file != "" {

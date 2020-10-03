@@ -21,7 +21,7 @@ Your moving average should be updated, if possible, once per second and, after e
 
 * From my interpretation of the prompt, it seems that the Api must calculate the one minute moving average of the Cable Diameter, meaning we must calculate 
 the average of all the cableApi values retrieve from the poll api. By utilizing goroutines, I can have a process polling the poll api every second, and after 60 seconds has passed since polling, we can start popping off the oldest values every second, thus in our dataStore we will always maintain
-the subset of the polled values in our one minute interval prior to the current time in real-time.
+the subset of the polled values in our one minute interval prior to the current time in real-time. Also,since the API only handles one route "/cable-diameter" there is no need for a router/multiplexer.
 
 breakdown of responsibilities: 
 
@@ -39,8 +39,8 @@ breakdown of responsibilities:
 
 ### Scope 
 
-* The specification did not specify authentication nor encryption requirements and is not part of the core challenge, though if implemented the certificates can be create and signed using openssl, I have taken the liberty to create the certificates for server side authentication and client side authentication,
-and a bash script is available in the ssl folder (genCerts.sh) to create said certificates, and we can use the following to enable tls if needed: 
+* The specification did not specify authentication nor encryption requirements and is not part of the core challenge, though if implemented the certificates can be created and signed using openssl, I have taken the liberty to create the certificates for server side authentication and client side authentication,
+and a bash script is available in the ssl folder (genCerts.sh) to create said certificates (self-signed), the following resources would be useful in enabling tls for web service: 
 
 
     https://golang.org/pkg/net/http/#Server.ListenAndServeTLS 
@@ -50,7 +50,7 @@ and a bash script is available in the ssl folder (genCerts.sh) to create said ce
     "crypto/x509"
 
 
-Though in my implementation the Api is an insecure public API using http
+Though in my implementation of the web server the we will be using ListenAndServe and will be using http
 
 * The DataStore used to store the data for the running average is a self-implmenented concurrent datastore to store the running average,
 perhaps the use of a third party in memory dataStore like redis would be more effective if attempting to scale the api, but in the context
@@ -153,13 +153,14 @@ The design doc and solution took roughly 3 hours. Though, documenting and error 
 
 3. If you used any libraries not in the language’s standard library, why did you use them?
 
-I did not use any libraries outside the standard library for golang, just to keep things simple
+I did not use any libraries outside the standard library for golang, since the challenge was not too complicated. However, I did use the assert library to
+handle assertions for testing.
 
 4. If you have any feedback, feel free to share your thoughts!
 
 ## Misc
 
-## Tree Of Project:
+## Project Layout
 
 ```
 .

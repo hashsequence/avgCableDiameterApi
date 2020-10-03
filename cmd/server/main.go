@@ -11,10 +11,15 @@ import (
 
 //sample web server
 func main() {
+	//load default configuration for web server
 	config := utils.LoadConfig("")
+	//instantiate dataStore for moving average
 	dataStore := ds.NewDataStore()
+	//create a central logger
 	logger := utils.CreateLogger(config.File)
+	//instantiate handler for "/cable-diameter" route
 	avgCableDiameterApiHandler := routes.NewGetAverageHandler(dataStore, logger, config.ResponseType)
+	//instantiate poller
 	poller := poll.NewPoll(config.PollApi, time.Duration(config.TimeWindow) * time.Second, dataStore, logger)
 	//since I only have one route "/cable-diameter" I don't need a router
 	//however if I were to add more routes I woul replace the Handler with a *http.ServeMux to handle multiple routes
@@ -33,7 +38,9 @@ func main() {
 	//mux.Handle("/", routes.RecoveryMiddleWare(&routes.IndexHandler{}))
 	//mux.Handle("/cable-diameter", routes.RecoveryMiddleWare(avgCableDiameterApiHandler))
 	utils.InitMsg("AvgCableDiameter Web Service", config.Address)
+	//start polling
 	poller.Start()
+	//listen and server on tcp based on custom server configurations
 	s.ListenAndServe()
 	//sample use of tls with pre-generated self-signed certificates
     //run curl -k <host>:<port> to call api if hosted locally

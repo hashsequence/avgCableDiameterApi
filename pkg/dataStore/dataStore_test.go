@@ -25,4 +25,5 @@ func TestNewDataStore(t *testing.T) {
 	ds.Pop()
 	assert.Equal(t,ds.nums, []float64{}, "the two arrays should be equal")
 	ds.Pop()
+	assert.Equal(t,ds.nums, []float64{}, "the two arrays should be equal")
 }
