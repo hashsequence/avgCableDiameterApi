@@ -6,6 +6,7 @@ import (
     "net/http"
     "log"
     "errors"
+    "strconv"
     ds "github.com/hashsequence/avgCableDiameterApi/pkg/dataStore"
     utils "github.com/hashsequence/avgCableDiameterApi/pkg/utils"
   )
@@ -65,7 +66,7 @@ func (this *GetAverageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
         w.Header().Set("Content-Type", "application/json; charset=UTF-8")
         w.Write(resp)
     } else if this.responseType == "plain" {
-        resp := fmt.Sprintf("%f", currAverage)    
+        resp := strconv.FormatFloat(currAverage, 'f', -1, 64)
         w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
         w.Write([]byte(resp))
     }
