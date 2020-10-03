@@ -190,8 +190,6 @@ handle assertions for testing.
 
 4. If you have any feedback, feel free to share your thoughts!
 
-## Misc
-
 ## Project Layout
 
 ```
@@ -234,7 +232,7 @@ handle assertions for testing.
     └── server-req.pem
 
 ```
-### Creating and Running Docker Image
+## Creating and Running Docker Image
 
 in working directory run:
 ```
