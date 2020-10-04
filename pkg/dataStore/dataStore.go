@@ -70,8 +70,8 @@ func (this *queue) pop() (float64, bool) {
 	this.nums[this.head] = 0.0
 	this.head = (this.head+1) % len(this.nums)
 	this.size--
-	//resize down if the size is equal to half the capacity
-	if len(this.nums) > DEFAULT_QUEUE_SIZE && (this.size/2) == len(this.nums) {
+	//resize down if capacity is more than 4 times the size
+	if len(this.nums) > DEFAULT_QUEUE_SIZE && (this.size*4) <= len(this.nums) {
 		this.resize()
 	} 
 	return h, true

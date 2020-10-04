@@ -357,7 +357,8 @@ popped:  11.222766020141968
 
 2. How long did you spend on the take home? What would you add to your solution if you had more time and expected it to be used in a production setting?
 
-The design doc and solution took roughly 3 hours. Though, documenting and error cases was done throughout the following day which add a couple of hours to the take home.
+The design doc and solution took roughly 3 hours. Though, documenting and error cases was done throughout the following day which add a couple of hours to the take home. If it was used in a protection setting, I would probably implement encryption and authorization more robustly. For example, if we were using certificates I would use certs signed by an actual certificate authority. Perhaps, I would use existing tools and platforms for in memory datastores, and implement a more robust logging system. I would also do more thorough testing of api, and actually test api when deployed to aws, gcp, heroku, or a chosen cloud provider. I would also consider using terraform and docker technologies to manage infrastructure. Also for scaling, I thought about using nginx for load balancing (if the web service was deployed onto multiple containers, and if so we need to have some form of message queue, and a shared dataStore to
+sync up data for the moving average). All in all, most of the considerations have to do with managing infrastructure, scaling, and testing.
 
 3. If you used any libraries not in the language’s standard library, why did you use them?
 
