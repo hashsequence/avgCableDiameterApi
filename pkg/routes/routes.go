@@ -70,7 +70,6 @@ func (this *GetAverageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
         w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
         w.Write([]byte(resp))
     }
-
 }
 
 type IndexHandler struct {}

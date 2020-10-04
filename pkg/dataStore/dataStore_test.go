@@ -14,16 +14,20 @@ func TestNewDataStore(t *testing.T) {
 	ds.Add(21324.626)
 	assert.Equal(t,ds.GetAverage(), 70188.38799999999, "should be 70188.38799999999")
 	a2 := []float64{324.626, 324624.626 ,4667.6, 0.462, 21324.626}
+	temp := make([]float64, DEFAULT_QUEUE_SIZE)
+	copy(temp,a2)
+	a2 = temp
 	assert.Equal(t,ds.nums, a2, "the two arrays should be equal")
 	ds.Pop()
-	a2 = a2[1:]
+	a2[0] = 0.0
 	assert.Equal(t,ds.nums, a2, "the two arrays should be equal after popping")
 	ds.Pop()
 	ds.Pop()
 	assert.Equal(t,ds.GetAverage(), 10662.543999999983, "should be 10662.543999999983")
 	ds.Pop()
 	ds.Pop()
-	assert.Equal(t,ds.nums, []float64{}, "the two arrays should be equal")
+	emptyArr := make([]float64, DEFAULT_QUEUE_SIZE)
+	assert.Equal(t,ds.nums, emptyArr, "the two arrays should be equal")
 	ds.Pop()
-	assert.Equal(t,ds.nums, []float64{}, "the two arrays should be equal")
+	assert.Equal(t,ds.nums, emptyArr, "the two arrays should be equal")
 }

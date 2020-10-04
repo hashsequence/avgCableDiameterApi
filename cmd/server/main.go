@@ -13,6 +13,8 @@ import (
 func main() {
 	//load default configuration for web server
 	config := utils.LoadConfig("")
+	//if want to use config.json use this line of code instead and pass the path to config.json, example uses local directory
+	//config := utils.LoadConfig("config.json")
 	//instantiate dataStore for moving average
 	dataStore := ds.NewDataStore()
 	//create a central logger
@@ -43,6 +45,7 @@ func main() {
 	//listen and server on tcp based on custom server configurations
 	s.ListenAndServe()
 	//sample use of tls with pre-generated self-signed certificates
-    //run curl -k <host>:<port> to call api if hosted locally
+	//run curl -k <host>:<port> to call api if hosted locally
+	//uses https instead of http, note: since certs are self-signed, web browsers will not recognize the authority
     //this.Server.ListenAndServeTLS("ssl/server-cert.pem","ssl/server-key.pem")
 }

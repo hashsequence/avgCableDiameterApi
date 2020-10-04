@@ -21,18 +21,26 @@ Your moving average should be updated, if possible, once per second and, after e
 
 * From my interpretation of the prompt, it seems that the Api must calculate the one minute moving average of the Cable Diameter, meaning we must calculate 
 the average of all the cableApi values retrieve from the poll api. By utilizing goroutines, I can have a process polling the poll api every second, and after 60 seconds has passed since polling, we can start popping off the oldest values every second, thus in our dataStore we will always maintain
-the subset of the polled values in our one minute interval prior to the current time in real-time. Also,since the API only handles one route "/cable-diameter" there is no need for a router/multiplexer.
+the subset of the polled values in our one minute interval prior to the current time in real-time. 
 
 breakdown of responsibilities: 
 
 * poller
     * Responsible for polling the oden's Api
+    * will be pushing the new values into a dataStore and popping values older than a minute from the dataStore, frequeuncy of updates is every second
 
 * dataStore 
     * data structure to store moving average value and related data
+    * will be using a queue implemented with a ring buffer to store the values in the one minute interval
+        * reasons for using ring buffer over slices + append or linked-lists
+        * size we know the interval is going to be a minute, we only need to store values up to a minute old, thus the buffer is fixed
+        * with a ring buffer we don't need to reallocate memory for new elements since we are reusing the same space, whereas slices and linkeded-list implementation will need to allocate new memory for each pop (linked list allocates new memory for add)
+        * the number of garbage collection cycles will decrease due to the fact we are not allocating as much for new puses and pops every second
 
 * Routes
     * defines Handlers to handle endpoints
+    * only need to handle one route which is "/cable-diameter"
+    * we don't need a router/multiplexer such as http.ServeMux, go-chi, or gorilla/mux since there is only one route
 
 * logger
     * maintains the logging of web service
@@ -139,46 +147,192 @@ go build -o ./server ./cmd/server/
 make[1]: Leaving directory '/home/avwong13/avgCableDiameterApi'
 ./server 
 AvgCableDiameter Web Service started at : localhost:8080
-polledApi Value: 12.976316132644891
-sum: 12.976316132644891 numCount: 1 movingAverage: 12.976316132644891
-polledApi Value: 13.09765038624688
-sum: 26.073966518891773 numCount: 2 movingAverage: 13.036983259445886
-polledApi Value: 12.451448141041464
-sum: 38.52541465993323 numCount: 3 movingAverage: 12.841804886644411
-polledApi Value: 11.507305131582514
-sum: 50.032719791515746 numCount: 4 movingAverage: 12.508179947878936
-polledApi Value: 9.046249575430384
-sum: 59.078969366946126 numCount: 5 movingAverage: 11.815793873389225
-polledApi Value: 8.51331886708611
-sum: 67.59228823403224 numCount: 6 movingAverage: 11.265381372338707
-polledApi Value: 8.790965032812514
-sum: 76.38325326684475 numCount: 7 movingAverage: 10.911893323834963
-polledApi Value: 10.286953565353977
-sum: 86.67020683219873 numCount: 8 movingAverage: 10.833775854024841
-polledApi Value: 11.473288019372903
-sum: 98.14349485157163 numCount: 9 movingAverage: 10.904832761285737
-polledApi Value: 12.534110013650851
-sum: 110.67760486522248 numCount: 10 movingAverage: 11.067760486522248
-...
-popped:  12.976316132644891
-polledApi Value: 13.07753015906396
-sum: 636.6589871983313 numCount: 59 movingAverage: 10.79083029149714
-polledApi Value: 13.036937594707014
-sum: 649.6959247930383 numCount: 60 movingAverage: 10.828265413217306
-popped:  13.09765038624688
-popped:  12.451448141041464
-polledApi Value: 11.548358014454482
-sum: 635.6951842802044 numCount: 59 movingAverage: 10.774494648817024
-popped:  11.507305131582514
-polledApi Value: 10.40057525450755
-sum: 634.5884544031295 numCount: 59 movingAverage: 10.75573651530728
-popped:  9.046249575430384
-polledApi Value: 8.833609016249282
-sum: 634.3758138439484 numCount: 59 movingAverage: 10.752132438033025
-popped:  8.51331886708611
-polledApi Value: 8.338822411480074
-sum: 634.2013173883424 numCount: 59 movingAverage: 10.749174870988854
-...
+Started Polling
+polledApi Value: 11.74917035760581
+sum: 11.74917035760581 numCount: 1 movingAverage: 11.74917035760581
+polledApi Value: 11.030011904135948
+sum: 22.77918226174176 numCount: 2 movingAverage: 11.38959113087088
+polledApi Value: 9.106767232155976
+sum: 31.885949493897733 numCount: 3 movingAverage: 10.628649831299244
+polledApi Value: 8.350898441419519
+sum: 40.23684793531725 numCount: 4 movingAverage: 10.059211983829313
+polledApi Value: 8.332320103055508
+sum: 48.56916803837276 numCount: 5 movingAverage: 9.713833607674552
+polledApi Value: 9.1249480204555
+sum: 57.69411605882826 numCount: 6 movingAverage: 9.61568600980471
+polledApi Value: 11.106765960712716
+sum: 68.80088201954098 numCount: 7 movingAverage: 9.828697431362997
+polledApi Value: 12.278551470943949
+sum: 81.07943349048493 numCount: 8 movingAverage: 10.134929186310616
+polledApi Value: 12.307122550101495
+sum: 93.38655604058643 numCount: 9 movingAverage: 10.376284004509603
+polledApi Value: 13.078199252325842
+sum: 106.46475529291227 numCount: 10 movingAverage: 10.646475529291227
+polledApi Value: 12.458113293487468
+sum: 118.92286858639974 numCount: 11 movingAverage: 10.811169871490886
+polledApi Value: 10.344222940836296
+sum: 129.26709152723603 numCount: 12 movingAverage: 10.772257627269669
+polledApi Value: 10.103244052644046
+sum: 139.37033557988008 numCount: 13 movingAverage: 10.72079504460616
+polledApi Value: 8.517363777973337
+sum: 147.88769935785342 numCount: 14 movingAverage: 10.56340709698953
+polledApi Value: 8.546598747845277
+sum: 156.4342981056987 numCount: 15 movingAverage: 10.42895320704658
+polledApi Value: 9.08544031110982
+sum: 165.51973841680854 numCount: 16 movingAverage: 10.344983651050534
+polledApi Value: 10.519748861174364
+sum: 176.03948727798291 numCount: 17 movingAverage: 10.355263957528408
+polledApi Value: 11.222766020141968
+sum: 187.26225329812488 numCount: 18 movingAverage: 10.403458516562493
+polledApi Value: 12.855978053028958
+sum: 200.11823135115384 numCount: 19 movingAverage: 10.532538492165992
+polledApi Value: 12.834033270185007
+sum: 212.95226462133886 numCount: 20 movingAverage: 10.647613231066943
+polledApi Value: 11.745333159960666
+sum: 224.69759778129952 numCount: 21 movingAverage: 10.699885608633311
+polledApi Value: 10.170976089069724
+sum: 234.86857387036923 numCount: 22 movingAverage: 10.675844266834964
+polledApi Value: 9.97489721081071
+sum: 244.84347108117993 numCount: 23 movingAverage: 10.645368307877389
+polledApi Value: 8.939985419870883
+sum: 253.7834565010508 numCount: 24 movingAverage: 10.574310687543784
+polledApi Value: 8.300041961674747
+sum: 262.0834984627256 numCount: 25 movingAverage: 10.483339938509022
+polledApi Value: 9.4147569780949
+sum: 271.49825544082046 numCount: 26 movingAverage: 10.44224059387771
+polledApi Value: 10.274919843909611
+sum: 281.7731752847301 numCount: 27 movingAverage: 10.436043529064078
+polledApi Value: 12.359498024362281
+sum: 294.13267330909235 numCount: 28 movingAverage: 10.504738332467584
+polledApi Value: 13.063820597121442
+sum: 307.1964939062138 numCount: 29 movingAverage: 10.59298254849013
+polledApi Value: 12.753235446540508
+sum: 319.9497293527543 numCount: 30 movingAverage: 10.664990978425143
+polledApi Value: 11.807605634346931
+sum: 331.7573349871012 numCount: 31 movingAverage: 10.701849515712942
+polledApi Value: 11.079594800734023
+sum: 342.83692978783523 numCount: 32 movingAverage: 10.713654055869851
+polledApi Value: 9.217941949157579
+sum: 352.0548717369928 numCount: 33 movingAverage: 10.668329446575541
+polledApi Value: 8.71181806148321
+sum: 360.766689798476 numCount: 34 movingAverage: 10.610784994072825
+polledApi Value: 8.66858760038153
+sum: 369.4352773988576 numCount: 35 movingAverage: 10.55529363996736
+polledApi Value: 8.792259155737973
+sum: 378.22753655459553 numCount: 36 movingAverage: 10.506320459849876
+polledApi Value: 10.298090882045571
+sum: 388.5256274366411 numCount: 37 movingAverage: 10.500692633422734
+polledApi Value: 11.450681376275355
+sum: 399.9763088129165 numCount: 38 movingAverage: 10.525692337182013
+polledApi Value: 13.098112329968703
+sum: 413.0744211428852 numCount: 39 movingAverage: 10.591651824176544
+polledApi Value: 12.984499022035477
+sum: 426.0589201649207 numCount: 40 movingAverage: 10.651473004123018
+polledApi Value: 11.278059889957678
+sum: 437.3369800548784 numCount: 41 movingAverage: 10.666755611094594
+polledApi Value: 11.01853304772657
+sum: 448.35551310260496 numCount: 42 movingAverage: 10.675131264347737
+polledApi Value: 8.804741910186264
+sum: 457.1602550127912 numCount: 43 movingAverage: 10.631633837506772
+polledApi Value: 8.480733762877543
+sum: 465.64098877566875 numCount: 44 movingAverage: 10.582749744901562
+polledApi Value: 8.313148912335835
+sum: 473.9541376880046 numCount: 45 movingAverage: 10.532314170844547
+polledApi Value: 10.066055721958
+sum: 484.0201934099626 numCount: 46 movingAverage: 10.522178117607883
+polledApi Value: 10.5322244313521
+sum: 494.5524178413147 numCount: 47 movingAverage: 10.522391868964142
+polledApi Value: 12.776293576668992
+sum: 507.3287114179837 numCount: 48 movingAverage: 10.569348154541327
+polledApi Value: 13.094465146663474
+sum: 520.4231765646472 numCount: 49 movingAverage: 10.620881154380555
+polledApi Value: 12.716142501245509
+sum: 533.1393190658927 numCount: 50 movingAverage: 10.662786381317853
+polledApi Value: 11.585664201001949
+sum: 544.7249832668946 numCount: 51 movingAverage: 10.68088202484107
+polledApi Value: 9.623950678455087
+sum: 554.3489339453497 numCount: 52 movingAverage: 10.660556422025955
+polledApi Value: 9.420427453316755
+sum: 563.7693613986664 numCount: 53 movingAverage: 10.637157762238989
+polledApi Value: 8.321599028648585
+sum: 572.090960427315 numCount: 54 movingAverage: 10.594277044950278
+polledApi Value: 8.747583847306371
+sum: 580.8385442746214 numCount: 55 movingAverage: 10.560700804993116
+polledApi Value: 10.186799368149547
+sum: 591.025343642771 numCount: 56 movingAverage: 10.55402399362091
+polledApi Value: 10.447597710567551
+sum: 601.4729413533386 numCount: 57 movingAverage: 10.552156865848046
+polledApi Value: 12.500368083296886
+sum: 613.9733094366354 numCount: 58 movingAverage: 10.585746714424749
+polledApi Value: 12.999975284663442
+sum: 626.9732847212989 numCount: 59 movingAverage: 10.62666584273388
+polledApi Value: 12.548803801632475
+sum: 639.5220885229314 numCount: 60 movingAverage: 10.658701475382191
+popped:  11.74917035760581
+polledApi Value: 12.059964366615977
+sum: 639.8328825319416 numCount: 60 movingAverage: 10.663881375532359
+popped:  11.030011904135948
+polledApi Value: 10.721856367793523
+sum: 639.5247269955992 numCount: 60 movingAverage: 10.658745449926652
+popped:  9.106767232155976
+polledApi Value: 8.834368133877568
+sum: 639.2523278973207 numCount: 60 movingAverage: 10.654205464955345
+popped:  8.350898441419519
+popped:  8.332320103055508
+polledApi Value: 8.34697431833056
+sum: 630.9160836711762 numCount: 59 movingAverage: 10.693492943579258
+polledApi Value: 8.800808267422983
+sum: 639.7168919385992 numCount: 60 movingAverage: 10.661948198976654
+popped:  9.1249480204555
+polledApi Value: 9.468856380509935
+sum: 640.0608002986537 numCount: 60 movingAverage: 10.667680004977562
+popped:  11.106765960712716
+polledApi Value: 11.578832339846894
+sum: 640.532866677788 numCount: 60 movingAverage: 10.675547777963134
+popped:  12.278551470943949
+polledApi Value: 12.300727657630265
+sum: 640.5550428644743 numCount: 60 movingAverage: 10.675917381074573
+popped:  12.307122550101495
+polledApi Value: 13.009596489410697
+sum: 641.2575168037836 numCount: 60 movingAverage: 10.68762528006306
+popped:  13.078199252325842
+popped:  12.458113293487468
+polledApi Value: 12.08204087822432
+sum: 627.8032451361946 numCount: 59 movingAverage: 10.640732968410079
+popped:  10.344222940836296
+polledApi Value: 10.08052147610145
+sum: 627.5395436714598 numCount: 59 movingAverage: 10.63626345205864
+popped:  10.103244052644046
+polledApi Value: 9.226872754439519
+sum: 626.6631723732553 numCount: 59 movingAverage: 10.621409701241616
+popped:  8.517363777973337
+polledApi Value: 8.307755105005613
+sum: 626.4535637002876 numCount: 59 movingAverage: 10.617857011869281
+GetAverageHandler called, currentAverage: 10.617857011869281
+404 not found.
+GetAverageHandler called, currentAverage: 10.617857011869281
+popped:  8.546598747845277
+GetAverageHandler called, currentAverage: 10.653568361249008
+polledApi Value: 8.450210051728892
+sum: 626.3571750041713 numCount: 59 movingAverage: 10.616223305155446
+GetAverageHandler called, currentAverage: 10.616223305155446
+GetAverageHandler called, currentAverage: 10.616223305155446
+GetAverageHandler called, currentAverage: 10.616223305155446
+GetAverageHandler called, currentAverage: 10.616223305155446
+GetAverageHandler called, currentAverage: 10.616223305155446
+GetAverageHandler called, currentAverage: 10.616223305155446
+popped:  9.08544031110982
+GetAverageHandler called, currentAverage: 10.642616115397612
+GetAverageHandler called, currentAverage: 10.642616115397612
+polledApi Value: 9.314461114910653
+sum: 626.5861958079721 numCount: 59 movingAverage: 10.620105013694442
+GetAverageHandler called, currentAverage: 10.620105013694442
+polledApi Value: 9.753597672198895
+sum: 636.339793480171 numCount: 60 movingAverage: 10.605663224669517
+popped:  10.519748861174364
+polledApi Value: 10.933835677449
+sum: 636.7538802964457 numCount: 60 movingAverage: 10.612564671607428
+popped:  11.222766020141968
 ```
 
 #### Windows
@@ -207,8 +361,7 @@ The design doc and solution took roughly 3 hours. Though, documenting and error 
 
 3. If you used any libraries not in the language’s standard library, why did you use them?
 
-I did not use any libraries outside the standard library for golang, since the challenge was not too complicated. However, I did use the assert library to
-handle assertions for testing.
+I did not use any libraries outside the standard library for golang for the implementation, since the challenge was not too complicated. However, I did use the assert library to handle assertions for testing.
 
 4. If you have any feedback, feel free to share your thoughts!
 
@@ -217,6 +370,7 @@ Had a lot of fun working on this project!
 ## Project Layout
 
 ```
+:~/avgCableDiameterApi$ tree
 .
 ├── cmd
 │   └── server
@@ -313,75 +467,79 @@ here is a sample run using make test:
 ```
 $ make test
 go test -v ./...
-?   	github.com/hashsequence/avgCableDiameterApi/cmd/playground	[no test files]
 ?   	github.com/hashsequence/avgCableDiameterApi/cmd/server	[no test files]
 === RUN   TestNewDataStore
 --- PASS: TestNewDataStore (0.00s)
 PASS
 ok  	github.com/hashsequence/avgCableDiameterApi/pkg/dataStore	(cached)
+
 === RUN   TestPoller
 Started Polling
-polledApi Value: 10.647130484191077
-sum: 10.647130484191077 numCount: 1 movingAverage: 10.647130484191077
-polledApi Value: 8.925005500538543
-sum: 19.57213598472962 numCount: 2 movingAverage: 9.78606799236481
-polledApi Value: 8.895486962163256
-sum: 28.467622946892874 numCount: 3 movingAverage: 9.48920764896429
-polledApi Value: 8.581333896607628
-sum: 37.048956843500505 numCount: 4 movingAverage: 9.262239210875126
-polledApi Value: 8.656554370085571
-sum: 45.70551121358608 numCount: 5 movingAverage: 9.141102242717215
-polledApi Value: 11.129761498121448
-sum: 56.835272711707525 numCount: 6 movingAverage: 9.472545451951254
-polledApi Value: 11.25832737427363
-sum: 68.09360008598115 numCount: 7 movingAverage: 9.727657155140164
+polledApi Value: 8.796030117897091
+sum: 8.796030117897091 numCount: 1 movingAverage: 8.796030117897091
+polledApi Value: 8.303582068667177
+sum: 17.09961218656427 numCount: 2 movingAverage: 8.549806093282134
+polledApi Value: 9.229916059357251
+sum: 26.32952824592152 numCount: 3 movingAverage: 8.776509415307173
+polledApi Value: 10.038588037806415
+sum: 36.368116283727936 numCount: 4 movingAverage: 9.092029070931984
+polledApi Value: 10.86249033173242
+sum: 47.23060661546036 numCount: 5 movingAverage: 9.446121323092072
+polledApi Value: 12.88562169422485
+sum: 60.11622830968521 numCount: 6 movingAverage: 10.019371384947535
 Stopped Polling
-polledApi Value: 12.381975941725331
-sum: 80.47557602770648 numCount: 8 movingAverage: 10.05944700346331
+polledApi Value: 12.971654150359377
+sum: 73.0878824600446 numCount: 7 movingAverage: 10.441126065720656
+polledApi Value: 12.902304151258843
+sum: 85.99018661130344 numCount: 8 movingAverage: 10.74877332641293
 Started Polling
-polledApi Value: 13.014800743915409
-sum: 93.4903767716219 numCount: 9 movingAverage: 10.387819641291323
-polledApi Value: 12.246175659079757
-sum: 105.73655243070165 numCount: 10 movingAverage: 10.573655243070165
-polledApi Value: 11.632189264985092
-sum: 117.36874169568674 numCount: 11 movingAverage: 10.669885608698793
-polledApi Value: 9.332376998623191
-sum: 126.70111869430993 numCount: 12 movingAverage: 10.55842655785916
+polledApi Value: 10.442247878357659
+sum: 96.4324344896611 numCount: 9 movingAverage: 10.714714943295679
+polledApi Value: 8.890039300229873
+sum: 105.32247378989098 numCount: 10 movingAverage: 10.532247378989098
+polledApi Value: 8.300832580654122
+sum: 121.93261288026488 numCount: 12 movingAverage: 10.161051073355408
+polledApi Value: 8.309306509719782
+sum: 113.63178029961077 numCount: 11 movingAverage: 10.33016184541916
 --- PASS: TestPoller (23.00s)
 PASS
-ok  	github.com/hashsequence/avgCableDiameterApi/pkg/poll	(cached)
+ok  	github.com/hashsequence/avgCableDiameterApi/pkg/poll	23.007s
 === RUN   TestCableDiameterRouteJsonResponse
 Started Polling
-polledApi Value: 9.411733381039618
-sum: 9.411733381039618 numCount: 1 movingAverage: 9.411733381039618
-polledApi Value: 9.075350390523251
-sum: 18.48708377156287 numCount: 2 movingAverage: 9.243541885781434
-polledApi Value: 8.393386762666402
-sum: 26.88047053422927 numCount: 3 movingAverage: 8.960156844743091
-polledApi Value: 9.0466296583329
-sum: 35.92710019256217 numCount: 4 movingAverage: 8.981775048140543
-GetAverageHandler called, currentAverage: 8.981775048140543
+polledApi Value: 8.973460112453658
+sum: 8.973460112453658 numCount: 1 movingAverage: 8.973460112453658
+polledApi Value: 8.342723853185404
+sum: 17.316183965639063 numCount: 2 movingAverage: 8.658091982819531
+polledApi Value: 9.50913884846703
+sum: 26.825322814106094 numCount: 3 movingAverage: 8.941774271368699
+GetAverageHandler called, currentAverage: 8.941774271368699
+Alloc = 0 MiB	TotalAlloc = 0 MiB	Sys = 70 MiB	NumGC = 0
 --- PASS: TestCableDiameterRouteJsonResponse (5.00s)
 === RUN   TestCableDiameterRoutePLainResponse
 Started Polling
-polledApi Value: 10.28683738836894
-sum: 46.213937580931116 numCount: 5 movingAverage: 9.242787516186223
-polledApi Value: 11.57077852140436
-sum: 11.57077852140436 numCount: 1 movingAverage: 11.57077852140436
-polledApi Value: 12.253908337776421
-sum: 58.46784591870754 numCount: 6 movingAverage: 9.744640986451257
-polledApi Value: 12.3867957400489
-sum: 70.85464165875644 numCount: 7 movingAverage: 10.122091665536633
-polledApi Value: 13.097104382180925
-sum: 83.95174604093737 numCount: 8 movingAverage: 10.49396825511717
-polledApi Value: 13.089805743690412
-sum: 24.660584265094773 numCount: 2 movingAverage: 12.330292132547386
-polledApi Value: 13.06009881468157
-sum: 37.72068307977634 numCount: 3 movingAverage: 12.573561026592115
-GetAverageHandler called, currentAverage: 12.573561026592115
-plaintext response:  12.573561026592115 type:  float64
+polledApi Value: 10.879254439331087
+sum: 37.70457725343718 numCount: 4 movingAverage: 9.426144313359295
+polledApi Value: 11.198157352166028
+sum: 48.90273460560321 numCount: 5 movingAverage: 9.780546921120642
+polledApi Value: 13.099968640325857
+sum: 13.099968640325857 numCount: 1 movingAverage: 13.099968640325857
+polledApi Value: 13.048803744015789
+sum: 61.951538349619 numCount: 6 movingAverage: 10.325256391603167
+polledApi Value: 13.037235141662322
+sum: 26.137203781988177 numCount: 2 movingAverage: 13.068601890994088
+polledApi Value: 12.765692477534817
+sum: 74.71723082715381 numCount: 7 movingAverage: 10.673890118164831
+polledApi Value: 12.235361046712564
+sum: 38.37256482870074 numCount: 3 movingAverage: 12.790854942900246
+polledApi Value: 11.953711002794469
+sum: 86.67094182994828 numCount: 8 movingAverage: 10.833867728743535
+polledApi Value: 11.19208778537498
+sum: 49.56465261407572 numCount: 4 movingAverage: 12.39116315351893
+GetAverageHandler called, currentAverage: 12.39116315351893
+Alloc = 1 MiB	TotalAlloc = 1 MiB	Sys = 70 MiB	NumGC = 0
+plaintext response:  12.39116315351893 type:  float64
 --- PASS: TestCableDiameterRoutePLainResponse (5.00s)
 PASS
-ok  	github.com/hashsequence/avgCableDiameterApi/pkg/routes	(cached)
+ok  	github.com/hashsequence/avgCableDiameterApi/pkg/routes	10.009s
 ?   	github.com/hashsequence/avgCableDiameterApi/pkg/utils	[no test files]
 ```
