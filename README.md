@@ -71,7 +71,7 @@ for polling new values and popping old values just so the two processes are inde
 
 * As for the format of response in the curl example, the value looks like plainText up to 2 significant figures. However, it was not specified what type of response the http web api will serve nor the response value has to be 2 significate figures, so I implemented a conigurable option to respond with a json or a plainText, and the format of value will be float64 to be consitent with the response of the oden Api
 
-### local development environment
+### Local Development Environment
 
 * Ubuntu 16.04
 
